@@ -27,7 +27,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: 1.5.7 # Ajusta a la versión que uses
+          terraform_version: 1.8.4 
 
       # Inicializar Terraform
       - name: Terraform Init
@@ -45,7 +45,7 @@ jobs:
           TF_VAR_resource_group_name: rg-01
           TF_VAR_location: eastus
           TF_VAR_admin_username: ${{ secrets.ADMIN_USERNAME }} # Agrega este secreto si es necesario
-          TF_VAR_admin_password: ${{ secrets.ADMIN_PASSWORD }} # Agrega este secreto si es necesario
+          TF_VAR_admin_password: ${{ secrets.ADMIN_PASSWORD }} 
           TF_VAR_vm_size: Standard_DS1_v2
 
       # Aplicar el plan (solo en push a main)
