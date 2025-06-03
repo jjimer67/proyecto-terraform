@@ -1,0 +1,54 @@
+name: Terraform CI/CD
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  terraform:
+    name: Terraform Plan and Apply
+    runs-on: ubuntu-latest
+    env:
+      ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+
+    steps:
+      # Checkout del código
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # Instalar Terraform
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.5.7 # Ajusta a la versión que uses
+
+      # Inicializar Terraform
+      - name: Terraform Init
+        run: terraform init
+
+      # Validar el código Terraform
+      - name: Terraform Validate
+        run: terraform validate
+
+      # Generar el plan de Terraform
+      - name: Terraform Plan
+        run: terraform plan -input=false -out=tfplan
+        env:
+          TF_VAR_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          TF_VAR_resource_group_name: rg-01
+          TF_VAR_location: eastus
+          TF_VAR_admin_username: ${{ secrets.ADMIN_USERNAME }} # Agrega este secreto si es necesario
+          TF_VAR_admin_password: ${{ secrets.ADMIN_PASSWORD }} # Agrega este secreto si es necesario
+          TF_VAR_vm_size: Standard_DS1_v2
+
+      # Aplicar el plan (solo en push a main)
+      - name: Terraform Apply
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: terraform apply 
